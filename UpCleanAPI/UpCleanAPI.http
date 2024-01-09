@@ -1,0 +1,6 @@
+@UpCleanAPI_HostAddress = http://localhost:5223
+
+GET {{UpCleanAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
