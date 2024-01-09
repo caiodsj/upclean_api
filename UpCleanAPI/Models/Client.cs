@@ -9,6 +9,7 @@
         public string CPF { get; set; }
         public int IdAddress { get; set; }
         public Address Address { get; set; }
+        public List<Request> Requests { get; set; }
 
     }
 }

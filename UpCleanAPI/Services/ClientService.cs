@@ -1,33 +1,65 @@
-﻿using UpCleanAPI.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using UpCleanAPI.Data;
+using UpCleanAPI.DTOs;
 using UpCleanAPI.Models;
 
 namespace UpCleanAPI.Services
 {
     public class ClientService : IClientService
     {
-        public Task<Client> CreateClient(ClientInsertDTO request)
+        private readonly DataContext _context;
+
+        public ClientService(DataContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task DeleteClient(int id)
+        public async Task<Client> CreateClient(ClientInsertDTO request)
         {
-            throw new NotImplementedException();
+            var client = new Client
+            {
+                GivenName = request.GivenName,
+                Surname = request.Surname,
+                DateOfBirth = request.DateOfBirth,
+                CPF = request.CPF,
+                Address = new Address()
+            };
+            await _context.Clients.AddAsync(client);
+            await _context.SaveChangesAsync();
+            return client;
         }
 
-        public Task<IEnumerable<Client>> GetAllClients()
+        public async Task DeleteClient(int id)
         {
-            throw new NotImplementedException();
+            var client = await _context.Clients.FindAsync(id);
+            if(client != null)
+            {
+                _context.Clients.Remove(client);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task<Client> GetClientByCPF(string CPFrequest)
+        public async Task<IEnumerable<Client>> GetAllClients()
         {
-            throw new NotImplementedException();
+            return await _context.Clients.ToListAsync();
         }
 
-        public Task<Client> UpdateClient(int id, ClientUpdateDTO request)
+        public async Task<Client> GetClientByCPF(string CPFrequest)
         {
-            throw new NotImplementedException();
+            return await _context.Clients.Include(c => c.Address).FirstOrDefaultAsync(c => c.CPF == CPFrequest);
+        }
+
+        public async Task<Client> UpdateClient(int id, ClientUpdateDTO request)
+        {
+            var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == id);
+            if(client != null)
+            {
+                client.GivenName = request.GivenName;
+                client.Surname = request.Surname;
+                client.DateOfBirth = request.DateOfBirth;
+            }
+            await _context.SaveChangesAsync();
+            return client;
         }
     }
 }
